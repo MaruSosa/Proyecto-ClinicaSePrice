@@ -59,14 +59,14 @@ namespace ClinicaSePrice
             }
             else
             {
-                // Alerta de seguridad si entran con un rol fantasma
+               
                 MessageBox.Show("Error de permisos. El rol no es válido.", "Acceso Denegado", MessageBoxButtons.OK, MessageBoxIcon.Stop);
                 Application.Exit();
             }
         }
         private void btnCerrar_Click(object sender, EventArgs e)
         {
-            Application.Exit();
+            this.Close();
         }
 
         private void btnMaximizar_Click(object sender, EventArgs e)
@@ -122,11 +122,16 @@ namespace ClinicaSePrice
 
         private void btnCerrarSesion_Click(object sender, EventArgs e)
         {
-            Login frm = new Login();
-            frm.Show();
-
-            // 2. Cierras el menú principal actual
-            this.Close();
+            DialogResult resultado = MessageBox.Show("¿Está seguro de que desea cerrar la sesión?",
+                                                     "Confirmar Cierre de Sesión",
+                                                     MessageBoxButtons.YesNo,
+                                                     MessageBoxIcon.Question);
+            if (resultado == DialogResult.Yes)
+            {
+                Login login = new Login();
+                login.Show();
+                this.Close();
+            }
         }
 
         private void btnInsumos_Click(object sender, EventArgs e)
@@ -142,7 +147,7 @@ namespace ClinicaSePrice
                 {
                     conn.Open();
 
-                    // Corregidos los alias repetidos de 'paciente' que daban error antes
+                   
                     string query = @"SELECT 
                                         t.hora,
                                         p.nombre AS paciente_nombre,
@@ -164,8 +169,7 @@ namespace ClinicaSePrice
                     DataTable dt = new DataTable();
                     da.Fill(dt);
 
-                    // CORREGIDO: Ahora sí le pasamos los datos al DataGridView
-                    // (Asegúrate de que 'dgvProximosTurnos' sea el nombre real de tu diseño)
+                   
                     dgvTurnos.DataSource = dt;
                 }
             }
@@ -205,7 +209,7 @@ namespace ClinicaSePrice
                     {
                         conn.Open();
 
-                        // CORREGIDO: El último LEFT JOIN ahora se hace usando 'pr.id_estudio' en lugar de 't.id_estudio'
+                        
                         string query = @"SELECT 
                             t.hora,
                             pr.nombre AS profesional,
@@ -251,6 +255,21 @@ namespace ClinicaSePrice
             Usuarios frm = new Usuarios();  
             frm.Show();
         }
-    }
 
+        private void Inicio_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            
+            DialogResult resultado = MessageBox.Show(
+                "¿Está seguro de que desea cerrar sesión y salir del sistema?",
+                "Confirmar Salida",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question
+            );
+
+            if (resultado == DialogResult.No)
+            {
+                e.Cancel = true;
+            }
+        }
+    }
 }

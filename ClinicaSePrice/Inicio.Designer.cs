@@ -29,11 +29,6 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Inicio));
-            this.panelSuperior = new System.Windows.Forms.Panel();
-            this.panel1 = new System.Windows.Forms.Panel();
-            this.btnMinimiza = new System.Windows.Forms.Button();
-            this.btnMaximizar = new System.Windows.Forms.Button();
-            this.btnCerrar = new System.Windows.Forms.Button();
             this.panelCentral = new System.Windows.Forms.Panel();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.panelIzquierda = new System.Windows.Forms.Panel();
@@ -80,7 +75,11 @@
             this.label12 = new System.Windows.Forms.Label();
             this.label11 = new System.Windows.Forms.Label();
             this.label10 = new System.Windows.Forms.Label();
-            this.panelSuperior.SuspendLayout();
+            this.btnCerrar = new System.Windows.Forms.Button();
+            this.btnMaximizar = new System.Windows.Forms.Button();
+            this.btnMinimiza = new System.Windows.Forms.Button();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.panelSuperior = new System.Windows.Forms.Panel();
             this.panelCentral.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             this.panelIzquierda.SuspendLayout();
@@ -106,76 +105,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox9)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox8)).BeginInit();
             this.panel4.SuspendLayout();
+            this.panelSuperior.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // panelSuperior
-            // 
-            this.panelSuperior.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(20)))), ((int)(((byte)(56)))), ((int)(((byte)(99)))));
-            this.panelSuperior.Controls.Add(this.panel1);
-            this.panelSuperior.Controls.Add(this.btnMinimiza);
-            this.panelSuperior.Controls.Add(this.btnMaximizar);
-            this.panelSuperior.Controls.Add(this.btnCerrar);
-            this.panelSuperior.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panelSuperior.Location = new System.Drawing.Point(0, 0);
-            this.panelSuperior.Name = "panelSuperior";
-            this.panelSuperior.Size = new System.Drawing.Size(918, 50);
-            this.panelSuperior.TabIndex = 9;
-            this.panelSuperior.Paint += new System.Windows.Forms.PaintEventHandler(this.panelSuperior_Paint);
-            // 
-            // panel1
-            // 
-            this.panel1.BackColor = System.Drawing.SystemColors.ActiveCaption;
-            this.panel1.Location = new System.Drawing.Point(0, 50);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(400, 338);
-            this.panel1.TabIndex = 10;
-            // 
-            // btnMinimiza
-            // 
-            this.btnMinimiza.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnMinimiza.BackColor = System.Drawing.Color.Transparent;
-            this.btnMinimiza.FlatAppearance.BorderSize = 0;
-            this.btnMinimiza.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnMinimiza.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnMinimiza.ForeColor = System.Drawing.Color.White;
-            this.btnMinimiza.Location = new System.Drawing.Point(781, 1);
-            this.btnMinimiza.Name = "btnMinimiza";
-            this.btnMinimiza.Size = new System.Drawing.Size(45, 40);
-            this.btnMinimiza.TabIndex = 3;
-            this.btnMinimiza.Text = "—";
-            this.btnMinimiza.UseVisualStyleBackColor = false;
-            this.btnMinimiza.Click += new System.EventHandler(this.btnMinimiza_Click);
-            // 
-            // btnMaximizar
-            // 
-            this.btnMaximizar.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnMaximizar.BackColor = System.Drawing.Color.Transparent;
-            this.btnMaximizar.FlatAppearance.BorderSize = 0;
-            this.btnMaximizar.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnMaximizar.Font = new System.Drawing.Font("Segoe UI", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnMaximizar.ForeColor = System.Drawing.Color.White;
-            this.btnMaximizar.Location = new System.Drawing.Point(819, 0);
-            this.btnMaximizar.Name = "btnMaximizar";
-            this.btnMaximizar.Size = new System.Drawing.Size(45, 40);
-            this.btnMaximizar.TabIndex = 2;
-            this.btnMaximizar.Text = "□";
-            this.btnMaximizar.UseVisualStyleBackColor = false;
-            this.btnMaximizar.Click += new System.EventHandler(this.btnMaximizar_Click);
-            // 
-            // btnCerrar
-            // 
-            this.btnCerrar.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnCerrar.BackColor = System.Drawing.Color.Transparent;
-            this.btnCerrar.FlatAppearance.BorderSize = 0;
-            this.btnCerrar.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnCerrar.ForeColor = System.Drawing.Color.White;
-            this.btnCerrar.Location = new System.Drawing.Point(870, 3);
-            this.btnCerrar.Name = "btnCerrar";
-            this.btnCerrar.Size = new System.Drawing.Size(45, 40);
-            this.btnCerrar.TabIndex = 1;
-            this.btnCerrar.Text = "X";
-            this.btnCerrar.UseVisualStyleBackColor = false;
-            this.btnCerrar.Click += new System.EventHandler(this.btnCerrar_Click);
             // 
             // panelCentral
             // 
@@ -758,6 +689,75 @@
             this.label10.Text = "Avisos y Recordatorios";
             this.label10.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
+            // btnCerrar
+            // 
+            this.btnCerrar.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnCerrar.BackColor = System.Drawing.Color.Transparent;
+            this.btnCerrar.FlatAppearance.BorderSize = 0;
+            this.btnCerrar.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnCerrar.ForeColor = System.Drawing.Color.White;
+            this.btnCerrar.Location = new System.Drawing.Point(870, 3);
+            this.btnCerrar.Name = "btnCerrar";
+            this.btnCerrar.Size = new System.Drawing.Size(45, 40);
+            this.btnCerrar.TabIndex = 1;
+            this.btnCerrar.Text = "X";
+            this.btnCerrar.UseVisualStyleBackColor = false;
+            this.btnCerrar.Click += new System.EventHandler(this.btnCerrar_Click);
+            // 
+            // btnMaximizar
+            // 
+            this.btnMaximizar.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnMaximizar.BackColor = System.Drawing.Color.Transparent;
+            this.btnMaximizar.FlatAppearance.BorderSize = 0;
+            this.btnMaximizar.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnMaximizar.Font = new System.Drawing.Font("Segoe UI", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnMaximizar.ForeColor = System.Drawing.Color.White;
+            this.btnMaximizar.Location = new System.Drawing.Point(819, 0);
+            this.btnMaximizar.Name = "btnMaximizar";
+            this.btnMaximizar.Size = new System.Drawing.Size(45, 40);
+            this.btnMaximizar.TabIndex = 2;
+            this.btnMaximizar.Text = "□";
+            this.btnMaximizar.UseVisualStyleBackColor = false;
+            this.btnMaximizar.Click += new System.EventHandler(this.btnMaximizar_Click);
+            // 
+            // btnMinimiza
+            // 
+            this.btnMinimiza.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnMinimiza.BackColor = System.Drawing.Color.Transparent;
+            this.btnMinimiza.FlatAppearance.BorderSize = 0;
+            this.btnMinimiza.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnMinimiza.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnMinimiza.ForeColor = System.Drawing.Color.White;
+            this.btnMinimiza.Location = new System.Drawing.Point(781, 1);
+            this.btnMinimiza.Name = "btnMinimiza";
+            this.btnMinimiza.Size = new System.Drawing.Size(45, 40);
+            this.btnMinimiza.TabIndex = 3;
+            this.btnMinimiza.Text = "—";
+            this.btnMinimiza.UseVisualStyleBackColor = false;
+            this.btnMinimiza.Click += new System.EventHandler(this.btnMinimiza_Click);
+            // 
+            // panel1
+            // 
+            this.panel1.BackColor = System.Drawing.SystemColors.ActiveCaption;
+            this.panel1.Location = new System.Drawing.Point(0, 50);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(400, 338);
+            this.panel1.TabIndex = 10;
+            // 
+            // panelSuperior
+            // 
+            this.panelSuperior.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(20)))), ((int)(((byte)(56)))), ((int)(((byte)(99)))));
+            this.panelSuperior.Controls.Add(this.panel1);
+            this.panelSuperior.Controls.Add(this.btnMinimiza);
+            this.panelSuperior.Controls.Add(this.btnMaximizar);
+            this.panelSuperior.Controls.Add(this.btnCerrar);
+            this.panelSuperior.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panelSuperior.Location = new System.Drawing.Point(0, 0);
+            this.panelSuperior.Name = "panelSuperior";
+            this.panelSuperior.Size = new System.Drawing.Size(918, 50);
+            this.panelSuperior.TabIndex = 9;
+            this.panelSuperior.Paint += new System.Windows.Forms.PaintEventHandler(this.panelSuperior_Paint);
+            // 
             // Inicio
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -768,7 +768,7 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Name = "Inicio";
             this.Text = "Provisorio";
-            this.panelSuperior.ResumeLayout(false);
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Inicio_FormClosing);
             this.panelCentral.ResumeLayout(false);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.panelIzquierda.ResumeLayout(false);
@@ -801,40 +801,22 @@
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox8)).EndInit();
             this.panel4.ResumeLayout(false);
             this.panel4.PerformLayout();
+            this.panelSuperior.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
 
         #endregion
-
-        private System.Windows.Forms.Panel panelSuperior;
-        private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.Button btnMinimiza;
-        private System.Windows.Forms.Button btnMaximizar;
-        private System.Windows.Forms.Button btnCerrar;
         private System.Windows.Forms.Panel panelCentral;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
         private System.Windows.Forms.Panel panelIzquierda;
         private System.Windows.Forms.Panel panel2;
-        private System.Windows.Forms.Panel panelMenu;
-        private System.Windows.Forms.Button btnPacientes;
-        private System.Windows.Forms.Button btnProfesionales;
-        private System.Windows.Forms.Button btnDerivaciones;
-        private System.Windows.Forms.Button btnInsumos;
-        private System.Windows.Forms.Button btnTurnos;
-        private System.Windows.Forms.Button btnInicio;
-        private System.Windows.Forms.PictureBox Logo;
-        private System.Windows.Forms.PictureBox pictureBox5;
-        private System.Windows.Forms.Button btnCerrarSesion;
         private System.Windows.Forms.Panel panel3;
         private System.Windows.Forms.PictureBox pictureBox10;
         private System.Windows.Forms.PictureBox pictureBox9;
         private System.Windows.Forms.PictureBox pictureBox8;
         private System.Windows.Forms.Panel panel4;
-        private System.Windows.Forms.Label label10;
-        private System.Windows.Forms.Label label11;
         private System.Windows.Forms.Panel panel5;
-        private System.Windows.Forms.Label label12;
         private System.Windows.Forms.Label lbInicio;
         private System.Windows.Forms.Panel panel6;
         private System.Windows.Forms.Label label1;
@@ -846,17 +828,35 @@
         private System.Windows.Forms.PictureBox pictureBox12;
         private System.Windows.Forms.Label lbUsuario;
         private System.Windows.Forms.Panel panel7;
-        private System.Windows.Forms.Panel panel8;
-        private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.Button btnConfiguraciones;
-        private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Panel panel14;
         private System.Windows.Forms.MonthCalendar monthCalendar1;
         private System.Windows.Forms.Panel panel9;
         private System.Windows.Forms.Panel panel10;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.DataGridView dgvTurnos;
-        private System.Windows.Forms.Button btnUsuarios;
+        private System.Windows.Forms.Panel panelMenu;
         private System.Windows.Forms.Button btnEstudios;
+        private System.Windows.Forms.Button btnUsuarios;
+        private System.Windows.Forms.PictureBox pictureBox5;
+        private System.Windows.Forms.Button btnCerrarSesion;
+        private System.Windows.Forms.Button btnPacientes;
+        private System.Windows.Forms.Button btnProfesionales;
+        private System.Windows.Forms.Button btnDerivaciones;
+        private System.Windows.Forms.Button btnInsumos;
+        private System.Windows.Forms.Button btnTurnos;
+        private System.Windows.Forms.Button btnInicio;
+        private System.Windows.Forms.PictureBox Logo;
+        private System.Windows.Forms.Button btnConfiguraciones;
+        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Panel panel8;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label label12;
+        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.Button btnCerrar;
+        private System.Windows.Forms.Button btnMaximizar;
+        private System.Windows.Forms.Button btnMinimiza;
+        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.Panel panelSuperior;
     }
 }
