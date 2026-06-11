@@ -90,5 +90,18 @@ namespace ClinicaSePrice
             panelContenido.Controls.Add(uc);
             uc.Dock = DockStyle.Fill;
         }
+
+        private void btnCancelarTurno_Click(object sender, EventArgs e)
+        {
+            UcTurnoPacientePago uc = new UcTurnoPacientePago();
+            panelContenido.Controls.Clear();
+            panelContenido.Controls.Add(uc);
+            // OCULTAMOS la sección de pago para este botón
+            uc.MostrarSeccionBusqueda(false);
+            panelContenido.Controls.Add(uc);
+            uc.BringToFront();
+            uc.Dock = DockStyle.Fill;
+        }
+
     }
 }

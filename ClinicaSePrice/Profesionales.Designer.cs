@@ -176,6 +176,7 @@
             this.btnBuscarProfesional.TabIndex = 4;
             this.btnBuscarProfesional.Text = "Buscar Profesional";
             this.btnBuscarProfesional.UseVisualStyleBackColor = false;
+            this.btnBuscarProfesional.Click += new System.EventHandler(this.btnBuscarProfesional_Click);
             // 
             // btnVerProfesionales
             // 

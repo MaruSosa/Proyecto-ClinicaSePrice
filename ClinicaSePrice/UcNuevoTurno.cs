@@ -1,6 +1,8 @@
 ﻿using MySql.Data.MySqlClient;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using System.Windows.Forms;
 using static ClinicaSePrice.Login;
 
@@ -71,267 +73,170 @@ namespace ClinicaSePrice
         // CARGAR ESTUDIOS
         private void CargarEstudios()
         {
-            cmbEstudio.Items.Clear();
+            // Desvinculamos el evento temporalmente para evitar ejecuciones no deseadas
+            cmbEstudio.SelectedIndexChanged -= cmbEstudio_SelectedIndexChanged;
 
-            cmbEstudio.Items.Add("Ecografía");
-            cmbEstudio.Items.Add("Radiografía");
-            cmbEstudio.Items.Add("Tomografía");
-            cmbEstudio.Items.Add("Resonancia");
+            string query = "SELECT id_estudio, nombre_estudio FROM estudios ORDER BY nombre_estudio ASC";
+
+            using (MySqlConnection conn = new MySqlConnection(conexion))
+            {
+                try
+                {
+                    conn.Open();
+                    MySqlDataAdapter da = new MySqlDataAdapter(query, conn);
+                    DataTable dt = new DataTable();
+                    da.Fill(dt);
+
+                    cmbEstudio.DataSource = dt;
+                    cmbEstudio.DisplayMember = "nombre_estudio";
+                    cmbEstudio.ValueMember = "id_estudio";
+
+                    cmbEstudio.SelectedIndex = -1; // Inicia vacío
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error al cargar estudios: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                finally
+                {
+                    // Volvemos a activar el evento de forma segura
+                    cmbEstudio.SelectedIndexChanged += cmbEstudio_SelectedIndexChanged;
+                }
+            }
         }
 
         // CARGAR PROFESIONALES
         private void CargarProfesionales()
         {
+            cmbProfesional.SelectedIndexChanged -= cmbProfesional_SelectedIndexChanged;
+            cmbProfesional.DataSource = null;
             cmbProfesional.Items.Clear();
 
-            profesionales.Clear();
+            if (cmbEstudio.SelectedValue == null || cmbEstudio.SelectedIndex == -1)
+                return;
 
-            int idEstudio = 0;
+            int idEstudio = Convert.ToInt32(cmbEstudio.SelectedValue);
 
-            if (cmbEstudio.Text == "Ecografía")
-                idEstudio = 1;
+            string query = @"SELECT id_profesional, CONCAT(nombre, ' ', apellido) AS nombre_completo 
+                             FROM profesionales 
+                             WHERE id_estudio = @id 
+                             ORDER BY nombre ASC";
 
-            else if (cmbEstudio.Text == "Radiografía")
-                idEstudio = 2;
-
-            else if (cmbEstudio.Text == "Tomografía")
-                idEstudio = 3;
-
-            else if (cmbEstudio.Text == "Resonancia")
-                idEstudio = 4;
-
-            using (MySqlConnection conn =
-                new MySqlConnection(conexion))
+            using (MySqlConnection conn = new MySqlConnection(conexion))
             {
                 try
                 {
                     conn.Open();
+                    MySqlCommand cmd = new MySqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@id", idEstudio);
 
-                    string query = @"
-            SELECT id_profesional,
-                   nombre,
-                   apellido
-            FROM profesionales
-            WHERE id_estudio = @id";
+                    MySqlDataAdapter da = new MySqlDataAdapter(cmd);
+                    DataTable dt = new DataTable();
+                    da.Fill(dt);
 
-                    MySqlCommand cmd =
-                        new MySqlCommand(query, conn);
+                    cmbProfesional.DataSource = dt;
+                    cmbProfesional.DisplayMember = "nombre_completo";
+                    cmbProfesional.ValueMember = "id_profesional";
 
-                    cmd.Parameters.AddWithValue("@id",
-                        idEstudio);
-
-                    MySqlDataReader reader =
-                        cmd.ExecuteReader();
-
-                    while (reader.Read())
-                    {
-                        int idProfesional =
-                            Convert.ToInt32(
-                                reader["id_profesional"]);
-
-                        string nombreCompleto =
-                            reader["nombre"].ToString()
-                            + " " +
-                            reader["apellido"].ToString();
-
-                        cmbProfesional.Items.Add(
-                            nombreCompleto);
-
-                        profesionales.Add(
-                            nombreCompleto,
-                            idProfesional);
-                    }
-
-                    reader.Close();
+                    cmbProfesional.SelectedIndex = -1; // Inicia vacío
+                    cmbHorario.Items.Clear(); // Limpiamos horarios previos
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(
-                        "Error profesionales: "
-                        + ex.Message);
+                    MessageBox.Show("Error profesionales: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                finally
+                {
+                    cmbProfesional.SelectedIndexChanged += cmbProfesional_SelectedIndexChanged;
                 }
             }
         }
         private void cmbEstudio_SelectedIndexChanged(object sender, EventArgs e)
         {
-
+            CargarProfesionales();
         }
         private bool ValidarCampos()
         {
-            if (txtDni.Text == "")
-            {
-                MessageBox.Show("Ingrese DNI");
-                return false;
-            }
-
-            if (txtNombre.Text == "")
-            {
-                MessageBox.Show("Busque un paciente");
-                return false;
-            }
-
-            if (cmbEstudio.Text == "")
-            {
-                MessageBox.Show("Seleccione estudio");
-                return false;
-            }
-
-            if (cmbProfesional.Text == "")
-            {
-                MessageBox.Show("Seleccione profesional");
-                return false;
-            }
-
-            if (cmbHorario.Text == "")
-            {
-                MessageBox.Show("Seleccione horario");
-                return false;
-            }
-
+            if (string.IsNullOrEmpty(txtDni.Text.Trim())) { MessageBox.Show("Ingrese DNI"); return false; }
+            if (string.IsNullOrEmpty(txtNombre.Text.Trim())) { MessageBox.Show("Busque un paciente"); return false; }
+            if (cmbEstudio.SelectedValue == null || cmbEstudio.SelectedIndex == -1) { MessageBox.Show("Seleccione estudio"); return false; }
+            if (cmbProfesional.SelectedValue == null || cmbProfesional.SelectedIndex == -1) { MessageBox.Show("Seleccione profesional"); return false; }
+            if (cmbHorario.SelectedItem == null) { MessageBox.Show("Seleccione horario"); return false; }
             return true;
         }
 
         private void GuardarTurno()
         {
-            if (cmbHorario.SelectedItem == null)
-            {
-                MessageBox.Show("Seleccione un horario");
-                return;
-            }
-
             if (!ValidarCampos())
                 return;
 
             if (!HorarioDisponible())
             {
-                MessageBox.Show(
-                    "Ese horario ya está ocupado");
-
+                MessageBox.Show("Ese horario ya está ocupado", "Aviso", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            using (MySqlConnection conn =
-                new MySqlConnection(conexion))
+            using (MySqlConnection conn = new MySqlConnection(conexion))
             {
                 try
                 {
                     conn.Open();
 
-                    // BUSCAR ID PACIENTE
-                    string queryPaciente = @"
-            SELECT id_paciente
-            FROM pacientes
-            WHERE dni = @dni";
+                    // 1. OBTENER ID PACIENTE
+                    string queryPaciente = "SELECT id_paciente FROM pacientes WHERE dni = @dni";
+                    MySqlCommand cmdPaciente = new MySqlCommand(queryPaciente, conn);
+                    cmdPaciente.Parameters.AddWithValue("@dni", txtDni.Text.Trim());
 
-                    MySqlCommand cmdPaciente =
-                        new MySqlCommand(queryPaciente, conn);
-
-                    cmdPaciente.Parameters.AddWithValue(
-                        "@dni", txtDni.Text);
-
-                    object resultado =
-                        cmdPaciente.ExecuteScalar();
-
+                    object resultado = cmdPaciente.ExecuteScalar();
                     if (resultado == null)
                     {
-                        MessageBox.Show(
-                            "Paciente no encontrado");
-
+                        MessageBox.Show("Paciente no encontrado en el sistema.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return;
                     }
+                    int idPaciente = Convert.ToInt32(resultado);
 
-                    int idPaciente =
-                        Convert.ToInt32(resultado);
+                    // 2. CAPTURAR IDs DIRECTOS DESDE LOS COMBOBOX
+                    int idEstudio = Convert.ToInt32(cmbEstudio.SelectedValue);
+                    int idProfesional = Convert.ToInt32(cmbProfesional.SelectedValue);
 
-                    // OBTENER ID ESTUDIO
-                    int idEstudio = 0;
+                    // 3. INSERTAR TURNO
+                    string queryInsert = @"INSERT INTO turnos (id_paciente, id_profesional, id_estudio, fecha, hora, estado)
+                                           VALUES (@idPaciente, @idProfesional, @idEstudio, @fecha, @hora, @estado)";
 
-                    if (cmbEstudio.Text == "Ecografía")
-                        idEstudio = 1;
-
-                    else if (cmbEstudio.Text == "Radiografía")
-                        idEstudio = 2;
-
-                    else if (cmbEstudio.Text == "Tomografía")
-                        idEstudio = 3;
-
-                    else if (cmbEstudio.Text == "Resonancia")
-                        idEstudio = 4;
-
-                    // INSERTAR TURNO
-                    string query = @"
-            INSERT INTO turnos
-            (
-                id_paciente,
-                id_profesional,
-                id_estudio,
-                fecha,
-                hora,
-                estado
-            )
-            VALUES
-            (
-                @idPaciente,
-                @idProfesional,
-                @idEstudio,
-                @fecha,
-                @hora,
-                @estado
-            )";
-
-                    MySqlCommand cmd =
-                        new MySqlCommand(query, conn);
-
-                    cmd.Parameters.AddWithValue(
-                        "@idPaciente",
-                        idPaciente);
-
-                    cmd.Parameters.AddWithValue(
-                        "@idProfesional",
-                        profesionales[cmbProfesional.Text]);
-
-                    cmd.Parameters.AddWithValue(
-                        "@idEstudio",
-                        idEstudio);
-
-                    cmd.Parameters.AddWithValue(
-                        "@fecha",
-                        dtpFecha.Value.Date);
-
-                    cmd.Parameters.AddWithValue(
-                        "@hora",
-                        TimeSpan.Parse(
-                            cmbHorario.SelectedItem.ToString()));
-
-                    cmd.Parameters.AddWithValue(
-                        "@estado",
-                        "Pendiente");
+                    MySqlCommand cmd = new MySqlCommand(queryInsert, conn);
+                    cmd.Parameters.AddWithValue("@idPaciente", idPaciente);
+                    cmd.Parameters.AddWithValue("@idProfesional", idProfesional);
+                    cmd.Parameters.AddWithValue("@idEstudio", idEstudio);
+                    cmd.Parameters.AddWithValue("@fecha", dtpFecha.Value.Date);
+                    cmd.Parameters.AddWithValue("@hora", TimeSpan.Parse(cmbHorario.SelectedItem.ToString()));
+                    cmd.Parameters.AddWithValue("@estado", "Pendiente");
 
                     cmd.ExecuteNonQuery();
 
-                    MessageBox.Show(
-                        "Turno guardado correctamente");
-
+                    MessageBox.Show("Turno guardado correctamente", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     LimpiarCampos();
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(
-                        "Error guardar turno: "
-                        + ex.Message);
+                    MessageBox.Show("Error guardar turno: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
         private void LimpiarCampos()
         {
             txtDni.Clear();
+            LimpiarDatosPaciente();
+            cmbEstudio.SelectedIndex = -1;
+            cmbProfesional.DataSource = null;
+            cmbProfesional.Items.Clear();
+            cmbHorario.Items.Clear();
+        }
+        private void LimpiarDatosPaciente()
+        {
             txtNombre.Clear();
             txtApellido.Clear();
             txtObraSocial.Clear();
             txtTelefono.Clear();
-            cmbEstudio.SelectedIndex = -1;
-            cmbProfesional.SelectedIndex = -1;
-            cmbHorario.SelectedIndex = -1;
         }
 
         private void btnGuardarTurno_Click(object sender, EventArgs e)
@@ -349,6 +254,7 @@ namespace ClinicaSePrice
         {
 
             BuscarDisponibilidad();
+
         }
         private void BuscarDisponibilidad()
         {
@@ -362,46 +268,45 @@ namespace ClinicaSePrice
         {
             cmbHorario.Items.Clear();
 
+            // Si aún no se seleccionó un profesional válido, evitamos ejecutar la consulta
+            if (cmbProfesional.SelectedValue == null || cmbProfesional.SelectedIndex == -1)
+                return;
+
             List<string> horarios = new List<string>()
-    {
-        "08:00",
-        "08:30",
-        "09:00",
-        "09:30",
-        "10:00",
-        "10:30",
-        "11:00",
-        "11:30",
-        "12:00"
-    };
-
-            using (MySqlConnection conn =
-                new MySqlConnection(conexion))
             {
-                conn.Open();
+                "08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "12:00"
+            };
 
-                string query = @"SELECT hora
-                         FROM turnos
-                         WHERE fecha=@fecha
-                         AND id_profesional=@profesional";
-
-                MySqlCommand cmd =
-                    new MySqlCommand(query, conn);
-
-                cmd.Parameters.AddWithValue("@fecha",
-                    dtpFecha.Value.Date);
-
-                cmd.Parameters.AddWithValue("@profesional",
-                    cmbProfesional.SelectedValue);
-
-                MySqlDataReader dr = cmd.ExecuteReader();
-
-                while (dr.Read())
+            using (MySqlConnection conn = new MySqlConnection(conexion))
+            {
+                try
                 {
-                    string horaOcupada =
-                        dr["hora"].ToString();
+                    conn.Open();
 
-                    horarios.Remove(horaOcupada);
+                    string query = @"SELECT hora
+                                     FROM turnos
+                                     WHERE fecha = @fecha
+                                     AND id_profesional = @profesional";
+
+                    MySqlCommand cmd = new MySqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@fecha", dtpFecha.Value.Date);
+                    cmd.Parameters.AddWithValue("@profesional", cmbProfesional.SelectedValue);
+
+                    using (MySqlDataReader dr = cmd.ExecuteReader())
+                    {
+                        while (dr.Read())
+                        {
+                            // Formateamos para que coincida exactamente con "HH:mm" (ej. "08:00")
+                            TimeSpan horaSpan = (TimeSpan)dr["hora"];
+                            string horaOcupada = horaSpan.ToString(@"hh\:mm");
+
+                            horarios.Remove(horaOcupada);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error al cargar horarios: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
 
@@ -422,38 +327,24 @@ namespace ClinicaSePrice
             }
         private bool HorarioDisponible()
         {
-            using (MySqlConnection conn =
-                new MySqlConnection(conexion))
+            if (cmbProfesional.SelectedValue == null || cmbHorario.SelectedItem == null)
+                return false;
+
+            using (MySqlConnection conn = new MySqlConnection(conexion))
             {
                 conn.Open();
+                string query = @"SELECT COUNT(*) 
+                                 FROM turnos 
+                                 WHERE fecha = @fecha 
+                                 AND hora = @hora 
+                                 AND id_profesional = @profesional";
 
-                string query = @"
-        SELECT COUNT(*)
-        FROM turnos
-        WHERE fecha = @fecha
-        AND hora = @hora
-        AND id_profesional = @profesional";
+                MySqlCommand cmd = new MySqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@fecha", dtpFecha.Value.Date);
+                cmd.Parameters.AddWithValue("@hora", TimeSpan.Parse(cmbHorario.SelectedItem.ToString()));
+                cmd.Parameters.AddWithValue("@profesional", Convert.ToInt32(cmbProfesional.SelectedValue));
 
-                MySqlCommand cmd =
-                    new MySqlCommand(query, conn);
-
-                cmd.Parameters.AddWithValue(
-                    "@fecha",
-                    dtpFecha.Value.Date);
-
-                cmd.Parameters.AddWithValue(
-                    "@hora",
-                    TimeSpan.Parse(
-                        cmbHorario.SelectedItem.ToString()));
-
-                cmd.Parameters.AddWithValue(
-                    "@profesional",
-                    profesionales[cmbProfesional.Text]);
-
-                int cantidad =
-                    Convert.ToInt32(
-                        cmd.ExecuteScalar());
-
+                int cantidad = Convert.ToInt32(cmd.ExecuteScalar());
                 return cantidad == 0;
             }
         }

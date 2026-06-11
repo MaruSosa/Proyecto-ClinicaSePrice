@@ -62,11 +62,27 @@ namespace ClinicaSePrice
             panelContenido.Controls.Clear();
 
             UcVerProfesionales uc = new UcVerProfesionales();
-
             uc.Dock = DockStyle.Fill;
 
-            panelContenido.Controls.Add(uc);
+            // OCULTAMOS la sección de búsqueda para este botón
+            uc.MostrarSeccionBusqueda(false);
 
+            panelContenido.Controls.Add(uc);
+            uc.BringToFront();
+
+        }
+
+        private void btnBuscarProfesional_Click(object sender, EventArgs e)
+        {
+            panelContenido.Controls.Clear();
+
+            UcVerProfesionales uc = new UcVerProfesionales();
+            uc.Dock = DockStyle.Fill;
+
+            // MOSTRAMOS la sección de búsqueda para este botón
+            uc.MostrarSeccionBusqueda(true);
+
+            panelContenido.Controls.Add(uc);
             uc.BringToFront();
         }
     }

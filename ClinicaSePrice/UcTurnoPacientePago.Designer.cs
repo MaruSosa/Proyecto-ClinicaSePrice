@@ -32,6 +32,11 @@
             this.label1 = new System.Windows.Forms.Label();
             this.panelCentral = new System.Windows.Forms.Panel();
             this.panel2 = new System.Windows.Forms.Panel();
+            this.txtMontoAPagar = new System.Windows.Forms.TextBox();
+            this.label2 = new System.Windows.Forms.Label();
+            this.txtDescuento = new System.Windows.Forms.TextBox();
+            this.lbPorcentaje = new System.Windows.Forms.Label();
+            this.btnImprimirTicket = new System.Windows.Forms.Button();
             this.btnCancelar = new System.Windows.Forms.Button();
             this.cmbFormasPago = new System.Windows.Forms.ComboBox();
             this.btnPagar = new System.Windows.Forms.Button();
@@ -51,7 +56,6 @@
             this.txtDni = new System.Windows.Forms.TextBox();
             this.lbDni = new System.Windows.Forms.Label();
             this.lbDatosPaciente = new System.Windows.Forms.Label();
-            this.btnImprimirTicket = new System.Windows.Forms.Button();
             this.panelSuperior.SuspendLayout();
             this.panelCentral.SuspendLayout();
             this.panel2.SuspendLayout();
@@ -96,6 +100,10 @@
             // 
             this.panel2.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.panel2.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
+            this.panel2.Controls.Add(this.txtMontoAPagar);
+            this.panel2.Controls.Add(this.label2);
+            this.panel2.Controls.Add(this.txtDescuento);
+            this.panel2.Controls.Add(this.lbPorcentaje);
             this.panel2.Controls.Add(this.btnImprimirTicket);
             this.panel2.Controls.Add(this.btnCancelar);
             this.panel2.Controls.Add(this.cmbFormasPago);
@@ -107,8 +115,64 @@
             this.panel2.Location = new System.Drawing.Point(41, 331);
             this.panel2.Margin = new System.Windows.Forms.Padding(100, 3, 3, 3);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(724, 144);
+            this.panel2.Size = new System.Drawing.Size(724, 219);
             this.panel2.TabIndex = 13;
+            // 
+            // txtMontoAPagar
+            // 
+            this.txtMontoAPagar.Enabled = false;
+            this.txtMontoAPagar.Location = new System.Drawing.Point(421, 91);
+            this.txtMontoAPagar.Name = "txtMontoAPagar";
+            this.txtMontoAPagar.ReadOnly = true;
+            this.txtMontoAPagar.Size = new System.Drawing.Size(100, 29);
+            this.txtMontoAPagar.TabIndex = 18;
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Cursor = System.Windows.Forms.Cursors.Default;
+            this.label2.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(20)))), ((int)(((byte)(56)))), ((int)(((byte)(99)))));
+            this.label2.Location = new System.Drawing.Point(316, 100);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(99, 17);
+            this.label2.TabIndex = 17;
+            this.label2.Text = "Monto a Pagar:";
+            // 
+            // txtDescuento
+            // 
+            this.txtDescuento.Enabled = false;
+            this.txtDescuento.Location = new System.Drawing.Point(398, 33);
+            this.txtDescuento.Name = "txtDescuento";
+            this.txtDescuento.ReadOnly = true;
+            this.txtDescuento.Size = new System.Drawing.Size(155, 29);
+            this.txtDescuento.TabIndex = 16;
+            // 
+            // lbPorcentaje
+            // 
+            this.lbPorcentaje.AutoSize = true;
+            this.lbPorcentaje.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lbPorcentaje.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(20)))), ((int)(((byte)(56)))), ((int)(((byte)(99)))));
+            this.lbPorcentaje.Location = new System.Drawing.Point(296, 39);
+            this.lbPorcentaje.Name = "lbPorcentaje";
+            this.lbPorcentaje.Size = new System.Drawing.Size(96, 17);
+            this.lbPorcentaje.TabIndex = 15;
+            this.lbPorcentaje.Text = "Descuento O.S:";
+            // 
+            // btnImprimirTicket
+            // 
+            this.btnImprimirTicket.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(20)))), ((int)(((byte)(56)))), ((int)(((byte)(99)))));
+            this.btnImprimirTicket.FlatAppearance.BorderSize = 0;
+            this.btnImprimirTicket.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnImprimirTicket.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnImprimirTicket.ForeColor = System.Drawing.Color.White;
+            this.btnImprimirTicket.Location = new System.Drawing.Point(572, 85);
+            this.btnImprimirTicket.Name = "btnImprimirTicket";
+            this.btnImprimirTicket.Size = new System.Drawing.Size(83, 35);
+            this.btnImprimirTicket.TabIndex = 14;
+            this.btnImprimirTicket.Text = "Imprimir";
+            this.btnImprimirTicket.UseVisualStyleBackColor = false;
+            this.btnImprimirTicket.Click += new System.EventHandler(this.btnImprimirTicket_Click);
             // 
             // btnCancelar
             // 
@@ -116,7 +180,7 @@
             this.btnCancelar.FlatAppearance.BorderSize = 0;
             this.btnCancelar.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnCancelar.ForeColor = System.Drawing.Color.White;
-            this.btnCancelar.Location = new System.Drawing.Point(37, 80);
+            this.btnCancelar.Location = new System.Drawing.Point(54, 149);
             this.btnCancelar.Name = "btnCancelar";
             this.btnCancelar.Size = new System.Drawing.Size(110, 40);
             this.btnCancelar.TabIndex = 1;
@@ -127,7 +191,7 @@
             // cmbFormasPago
             // 
             this.cmbFormasPago.FormattingEnabled = true;
-            this.cmbFormasPago.Location = new System.Drawing.Point(412, 30);
+            this.cmbFormasPago.Location = new System.Drawing.Point(164, 88);
             this.cmbFormasPago.Name = "cmbFormasPago";
             this.cmbFormasPago.Size = new System.Drawing.Size(121, 29);
             this.cmbFormasPago.TabIndex = 13;
@@ -152,7 +216,7 @@
             this.lbFormaPago.AutoSize = true;
             this.lbFormaPago.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lbFormaPago.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(20)))), ((int)(((byte)(56)))), ((int)(((byte)(99)))));
-            this.lbFormaPago.Location = new System.Drawing.Point(296, 36);
+            this.lbFormaPago.Location = new System.Drawing.Point(57, 94);
             this.lbFormaPago.Name = "lbFormaPago";
             this.lbFormaPago.Size = new System.Drawing.Size(101, 17);
             this.lbFormaPago.TabIndex = 5;
@@ -212,6 +276,7 @@
             this.dgvTurnos.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvTurnos.Size = new System.Drawing.Size(425, 150);
             this.dgvTurnos.TabIndex = 1;
+            this.dgvTurnos.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvTurnos_CellClick);
             this.dgvTurnos.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvTurnos_CellContentClick);
             // 
             // label7
@@ -331,21 +396,6 @@
             this.lbDatosPaciente.TabIndex = 0;
             this.lbDatosPaciente.Text = "DATOS DEL PACIENTE";
             // 
-            // btnImprimirTicket
-            // 
-            this.btnImprimirTicket.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(20)))), ((int)(((byte)(56)))), ((int)(((byte)(99)))));
-            this.btnImprimirTicket.FlatAppearance.BorderSize = 0;
-            this.btnImprimirTicket.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnImprimirTicket.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnImprimirTicket.ForeColor = System.Drawing.Color.White;
-            this.btnImprimirTicket.Location = new System.Drawing.Point(572, 85);
-            this.btnImprimirTicket.Name = "btnImprimirTicket";
-            this.btnImprimirTicket.Size = new System.Drawing.Size(83, 35);
-            this.btnImprimirTicket.TabIndex = 14;
-            this.btnImprimirTicket.Text = "Imprimir";
-            this.btnImprimirTicket.UseVisualStyleBackColor = false;
-            this.btnImprimirTicket.Click += new System.EventHandler(this.btnImprimirTicket_Click);
-            // 
             // UcTurnoPacientePago
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 21F);
@@ -385,17 +435,21 @@
         private System.Windows.Forms.TextBox txtDni;
         private System.Windows.Forms.Label lbDni;
         private System.Windows.Forms.Label lbDatosPaciente;
-        private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Panel panel2;
         private System.Windows.Forms.Label lbFormaPago;
         private System.Windows.Forms.TextBox txtPrecio;
         private System.Windows.Forms.Label lbMonto;
         private System.Windows.Forms.Label lbPago;
         private System.Windows.Forms.Button btnPagar;
-        private System.Windows.Forms.DataGridView dgvTurnos;
         private System.Windows.Forms.ComboBox cmbFormasPago;
         private System.Windows.Forms.Button btnCancelar;
         private System.Windows.Forms.Button btnImprimirTicket;
+        private System.Windows.Forms.Label lbPorcentaje;
+        private System.Windows.Forms.TextBox txtDescuento;
+        private System.Windows.Forms.TextBox txtMontoAPagar;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.DataGridView dgvTurnos;
+        private System.Windows.Forms.Label label7;
     }
 }

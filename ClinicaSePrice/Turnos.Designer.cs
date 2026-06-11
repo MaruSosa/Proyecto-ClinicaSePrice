@@ -43,6 +43,7 @@
             this.panelSuperior = new System.Windows.Forms.Panel();
             this.pictureLogo = new System.Windows.Forms.PictureBox();
             this.panelContenido = new System.Windows.Forms.Panel();
+            this.btnCancelarTurno = new System.Windows.Forms.Button();
             this.panelTitulo.SuspendLayout();
             this.panelBotones.SuspendLayout();
             this.panelSuperior.SuspendLayout();
@@ -99,6 +100,7 @@
             // 
             // panelBotones
             // 
+            this.panelBotones.Controls.Add(this.btnCancelarTurno);
             this.panelBotones.Controls.Add(this.btnBuscarTurnoPaciente);
             this.panelBotones.Controls.Add(this.btnVerTurnos);
             this.panelBotones.Controls.Add(this.btnNuevoTurno);
@@ -224,6 +226,21 @@
             this.panelContenido.Size = new System.Drawing.Size(800, 284);
             this.panelContenido.TabIndex = 5;
             // 
+            // btnCancelarTurno
+            // 
+            this.btnCancelarTurno.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(20)))), ((int)(((byte)(56)))), ((int)(((byte)(99)))));
+            this.btnCancelarTurno.FlatAppearance.BorderSize = 0;
+            this.btnCancelarTurno.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnCancelarTurno.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnCancelarTurno.ForeColor = System.Drawing.Color.White;
+            this.btnCancelarTurno.Location = new System.Drawing.Point(502, 7);
+            this.btnCancelarTurno.Name = "btnCancelarTurno";
+            this.btnCancelarTurno.Size = new System.Drawing.Size(119, 40);
+            this.btnCancelarTurno.TabIndex = 5;
+            this.btnCancelarTurno.Text = "Cancelar Turno";
+            this.btnCancelarTurno.UseVisualStyleBackColor = false;
+            this.btnCancelarTurno.Click += new System.EventHandler(this.btnCancelarTurno_Click);
+            // 
             // PanelTurnos
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -261,5 +278,6 @@
         private System.Windows.Forms.Button btnMinimizar;
         private System.Windows.Forms.Panel panelSuperior;
         private System.Windows.Forms.Panel panelContenido;
+        private System.Windows.Forms.Button btnCancelarTurno;
     }
 }

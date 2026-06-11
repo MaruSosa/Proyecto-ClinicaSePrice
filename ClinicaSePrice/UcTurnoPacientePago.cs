@@ -18,10 +18,13 @@ namespace ClinicaSePrice
         private string idPacienteGlobal;
         private int idTurnoSeleccionado;
         private string ticketParaImprimir = "";
+        private string _estudioClinicoParaComprobante = "";
+
         public UcTurnoPacientePago()
         {
             InitializeComponent();
             CargarFormasDePago();
+            AgregarBotonCancelarColumna();
         }
         private void CargarDatosPaciente(string dni)
         {
@@ -57,7 +60,7 @@ namespace ClinicaSePrice
             }
             catch (Exception ex)
             {
-                MessageBox.Show("ERROR REAL: " + ex.Message);
+                MessageBox.Show("ERROR AL CARGAR PACIENTE: " + ex.Message);
             }
         }
 
@@ -80,39 +83,48 @@ namespace ClinicaSePrice
         }
         private void CargarTurnos(string idPaciente)
         {
-            string query = @"SELECT 
-                                t.id_turno,
-                                t.fecha,
-                                t.hora,
-                                t.id_estudio,
-                                e.precio,
-                                t.id_profesional,
-                                t.estado,
-                                t.observaciones
-                             FROM turnos t
-                             JOIN estudios e ON t.id_estudio = e.id_estudio
-                             WHERE t.id_paciente = @id
-                             ORDER BY t.fecha, t.hora";
-
-            using (MySqlConnection conn = new MySqlConnection(conexion))
+            try
             {
-                conn.Open();
+                // CORRECCIÓN AQUÍ: Usamos e.nombre (que es el campo real en tu tabla estudios) 
+                // y lo renombramos como 'estudio' para evitar errores
+                string query = @"SELECT 
+                                    t.id_turno,
+                                    t.fecha,
+                                    t.hora,
+                                    e.nombre_estudio AS estudio,
+                                    e.precio,
+                                    t.id_profesional,
+                                    t.estado,
+                                    t.observaciones
+                                 FROM turnos t
+                                 JOIN estudios e ON t.id_estudio = e.id_estudio
+                                 WHERE t.id_paciente = @id
+                                 ORDER BY t.fecha, t.hora";
 
-                using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                using (MySqlConnection conn = new MySqlConnection(conexion))
                 {
-                    cmd.Parameters.AddWithValue("@id", idPaciente);
+                    conn.Open();
 
-                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    using (MySqlCommand cmd = new MySqlCommand(query, conn))
                     {
-                        DataTable dt = new DataTable();
-                        dt.Load(reader);
+                        cmd.Parameters.AddWithValue("@id", idPaciente);
 
-                        dgvTurnos.DataSource = dt;
+                        using (MySqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            DataTable dt = new DataTable();
+                            dt.Load(reader);
+
+                            dgvTurnos.DataSource = dt;
+                        }
                     }
                 }
             }
+            catch (Exception ex)
+            {
+                MessageBox.Show("ERROR EN CONSULTA DE TURNOS: " + ex.Message, "Error de Base de Datos", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
-        
+
         private void CargarFormasDePago()
         {
             cmbFormasPago.Items.Clear();
@@ -127,19 +139,23 @@ namespace ClinicaSePrice
         }
         private void dgvTurnos_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
+            // 1. Validar que no sea el encabezado de la tabla
             if (e.RowIndex >= 0)
             {
-                DataGridViewRow row = dgvTurnos.Rows[e.RowIndex];
-
-                idTurnoSeleccionado = Convert.ToInt32(row.Cells["id_turno"].Value);
-
-                if (row.Cells["precio"].Value != null)
+                // 2. Si hizo clic específicamente en el botón Cancelar
+                if (dgvTurnos.Columns[e.ColumnIndex].Name == "btnCancelar")
                 {
-                    txtPrecio.Text = row.Cells["precio"].Value.ToString();
+                    int idTurno = Convert.ToInt32(dgvTurnos.Rows[e.RowIndex].Cells["id_turno"].Value);
+                    string estado = dgvTurnos.Rows[e.RowIndex].Cells["estado"].Value.ToString();
+                    string estudio = dgvTurnos.Rows[e.RowIndex].Cells["estudio"].Value.ToString();
+
+                    // Ejecutamos la lógica de cancelación
+                    ProcesarCancelacionTurno(idTurno, estado, estudio);
                 }
                 else
                 {
-                    txtPrecio.Text = "0";
+                    // Si hizo clic en cualquier otra celda, sigue funcionando la selección de pago normal
+                    dgvTurnos_CellClick(sender, e);
                 }
             }
         }
@@ -153,16 +169,19 @@ namespace ClinicaSePrice
                 return;
             }
 
-            // Validamos que el turno no se encuentre ya pagado
             DataGridViewRow row = dgvTurnos.Rows
                 .Cast<DataGridViewRow>()
                 .FirstOrDefault(r => Convert.ToInt32(r.Cells["id_turno"].Value) == idTurnoSeleccionado);
 
             if (row != null)
             {
-                if (row.Cells["estado"].Value.ToString() == "Pagado")
+                
+                string estado = row.Cells["estado"].Value?.ToString() ?? "";
+
+                // Evaluamos si el estado es "Pagado" O "Cancelado" usando el operador ||
+                if (estado == "Pagado" || estado == "Cancelado")
                 {
-                    MessageBox.Show("Este turno ya está pagado");
+                    MessageBox.Show($"No se puede proceder con el pago. El turno se encuentra: {estado}", "Operación No Permitida", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
             }
@@ -173,61 +192,67 @@ namespace ClinicaSePrice
                 return;
             }
 
-            // 1. Generamos el código único de acceso
             string codigoAccesoCliente = ObtenerCodigoTicketUnico();
 
-            // 2. Query definitiva para asentar el pago
             string query = @"UPDATE turnos 
                              SET estado = 'Pagado',
                                  forma_pago = @formaPago,
                                  fecha_pago = NOW(),
-                                 codigo_ticket = @codigoTicket
+                                 codigo_ticket = @codigoTicket,
+                                 monto_final = @montoFinal
                              WHERE id_turno = @id";
 
             using (MySqlConnection conn = new MySqlConnection(conexion))
             {
                 conn.Open();
-
                 using (MySqlCommand cmd = new MySqlCommand(query, conn))
                 {
                     cmd.Parameters.AddWithValue("@id", idTurnoSeleccionado);
                     cmd.Parameters.AddWithValue("@formaPago", cmbFormasPago.Text);
                     cmd.Parameters.AddWithValue("@codigoTicket", codigoAccesoCliente);
+                    cmd.Parameters.AddWithValue("@montoFinal", Convert.ToDecimal(txtMontoAPagar.Text));
 
                     cmd.ExecuteNonQuery();
                 }
             }
 
-            // 3. Recuperamos los datos de las etiquetas y la grilla
-            string nombrePaciente = lbNombre.Text;
-            string apellidoPaciente = lbApellido.Text;
-            string estudioRealizar = row.Cells["id_estudio"].Value?.ToString() ?? "N/A";
+            string pacienteNombre = lbNombre.Text;
+            string pacienteApellido = lbApellido.Text;
 
-            // 4. Armamos el diseño del Ticket de Pago
             string ticket = $@"
 ==========================================
-        CLÍNICA SEPRICE - TICKET DE PAGO          
+     CLÍNICA SEPRICE - COMPROBANTE        
 ==========================================
 Nro. Turno: {idTurnoSeleccionado}
 Fecha de Pago: {DateTime.Now.ToString("dd/MM/yyyy HH:mm")}
-Paciente: {nombrePaciente} {apellidoPaciente}
-Estudio ID: {estudioRealizar}
-Forma de Pago: {cmbFormasPago.Text}
 ------------------------------------------
-TOTAL ABONADO: ${txtPrecio.Text}
+PACIENTE: {pacienteApellido}, {pacienteNombre}
+Obra Social: {lbObraSocial.Text}
 ------------------------------------------
+ESTUDIO MÉDICO:
+{_estudioClinicoParaComprobante}
 ------------------------------------------
-⚠️ GUARDE ESTE CÓDIGO PARA VER RESULTADOS:
-👉 CLAVE DE ACCESO: {codigoAccesoCliente} 
+DETALLE DE CAJA:
+Monto Base:       ${Convert.ToDouble(txtPrecio.Text):F2}
+Descuento O.S:   -${Convert.ToDouble(txtDescuento.Text):F2}
 ------------------------------------------
-¡Muchas gracias por elegir Clinica SePrice!
+TOTAL ABONADO:    ${Convert.ToDouble(txtMontoAPagar.Text):F2}
+Forma de Pago:    {cmbFormasPago.Text}
+------------------------------------------
+      CONSULTA DE RESULTADOS ONLINE       
+ Para ver el informe de su estudio ingrese a:
+         www.clinicaseprice.com/web
+ CÓDIGO DE ACCESO: {codigoAccesoCliente}
+------------------------------------------
+         Gracias por su confianza          
 ==========================================";
+
             ticketParaImprimir = ticket;
             MessageBox.Show(ticket, "Turno Pagado correctamente ✔", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-            // 5. Actualizamos la grilla con el nuevo estado 'Pagado'
             CargarTurnos(idPacienteGlobal);
         }
+        
 
         private void btnCerrar_Click(object sender, EventArgs e)
         {
@@ -267,7 +292,7 @@ private string ObtenerCodigoTicketUnico()
         }
 
         private void btnImprimirTicket_Click(object sender, EventArgs e)
-        {// 1. Validamos si hay texto guardado en la variable global
+        {
             if (string.IsNullOrEmpty(ticketParaImprimir))
             {
                 MessageBox.Show("No hay ningún ticket reciente para visualizar. Primero hacé clic en 'Pagar'.", "Atención", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -276,22 +301,16 @@ private string ObtenerCodigoTicketUnico()
 
             try
             {
-                // 2. Creamos el documento
                 System.Drawing.Printing.PrintDocument pd = new System.Drawing.Printing.PrintDocument();
-
-                // 3. Le asociamos el método que dibuja las letras
                 pd.PrintPage += new System.Drawing.Printing.PrintPageEventHandler(Documento_PrintPage);
 
-                // 4. Forzamos el uso de la ventana flotante de Vista Previa
                 PrintPreviewDialog ventanaVistaPrevia = new PrintPreviewDialog();
                 ventanaVistaPrevia.Document = pd;
 
-                // Configuramos dimensiones lindas para la pantalla
                 ventanaVistaPrevia.Width = 500;
                 ventanaVistaPrevia.Height = 650;
                 ventanaVistaPrevia.StartPosition = FormStartPosition.CenterScreen;
 
-                // 5. Abrimos el ticket digitalizado
                 ventanaVistaPrevia.ShowDialog();
             }
             catch (Exception ex)
@@ -299,7 +318,7 @@ private string ObtenerCodigoTicketUnico()
                 MessageBox.Show("Error al generar la vista previa: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-        
+
         // 🖨️ Este método dibuja la hoja de imprimir
         private void Documento_PrintPage(object sender, System.Drawing.Printing.PrintPageEventArgs e)
         {
@@ -308,6 +327,156 @@ private string ObtenerCodigoTicketUnico()
             float y = 10;
 
             e.Graphics.DrawString(ticketParaImprimir, fuente, Brushes.Black, x, y);
+        }
+
+        private void dgvTurnos_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex >= 0)
+            {
+                DataGridViewRow row = dgvTurnos.Rows[e.RowIndex];
+
+                idTurnoSeleccionado = Convert.ToInt32(row.Cells["id_turno"].Value);
+
+                // Capturamos el alias corregido 'estudio'
+                if (row.Cells["estudio"].Value != null)
+                {
+                    _estudioClinicoParaComprobante = row.Cells["estudio"].Value.ToString();
+                }
+
+                if (row.Cells["precio"].Value != null)
+                {
+                    double precioBase = Convert.ToDouble(row.Cells["precio"].Value);
+                    double porcentajeDescuento = 0;
+
+                    string obraSocial = lbObraSocial.Text.Trim().ToUpper();
+
+                    switch (obraSocial)
+                    {
+                        case "OSDE":
+                            porcentajeDescuento = 0.80;
+                            break;
+                        case "PAMI":
+                            porcentajeDescuento = 1.00;
+                            break;
+                        case "SWISS MEDICAL":
+                            porcentajeDescuento = 0.70;
+                            break;
+                        case "PARTICULAR":
+                        case "NINGUNA":
+                        case "":
+                            porcentajeDescuento = 0.00;
+                            break;
+                        default:
+                            porcentajeDescuento = 0.20;
+                            break;
+                    }
+
+                    double dineroDescontado = precioBase * porcentajeDescuento;
+                    double netoAPagar = precioBase - dineroDescontado;
+
+                    txtPrecio.Text = precioBase.ToString("F2");
+                    txtDescuento.Text = dineroDescontado.ToString("F2");
+                    txtMontoAPagar.Text = netoAPagar.ToString("F2");
+                }
+                else
+                {
+                    txtPrecio.Text = "0.00";
+                    txtDescuento.Text = "0.00";
+                    txtMontoAPagar.Text = "0.00";
+                    _estudioClinicoParaComprobante = "N/A";
+                }
+            }
+        }
+        public void MostrarSeccionBusqueda(bool mostrar)
+        {
+            // Reemplazá 'panelBuscar' por el nombre REAl de tu panel de abajo
+            // (Fijate en el diseño cómo se llama el panel celeste que contiene "Buscar Profesional")
+            panel2.Visible = mostrar;
+        }
+        private void AgregarBotonCancelarColumna()
+        {
+            if (!dgvTurnos.Columns.Contains("btnCancelar"))
+            {
+                DataGridViewButtonColumn botonCancelar = new DataGridViewButtonColumn();
+                botonCancelar.Name = "btnCancelar";
+                botonCancelar.HeaderText = "Acciones";
+                botonCancelar.Text = "Cancelar Turno";
+                botonCancelar.UseColumnTextForButtonValue = true;
+                botonCancelar.Width = 120; 
+                botonCancelar.AutoSizeMode = DataGridViewAutoSizeColumnMode.None; 
+
+                // Añadimos el botón al principio o al final. 
+                // Si quieres que aparezca a la IZQUIERDA de todo (como se ve en tu foto), usa Insert en lugar de Add:
+                dgvTurnos.Columns.Insert(0, botonCancelar);
+            }
+        }
+        private void ProcesarCancelacionTurno(int idTurno, string estadoActual, string estudioNombre)
+        {
+            // Validación- No tiene sentido cancelar algo ya pagado o previamente disponible
+            if (estadoActual == "Pagado")
+            {
+                MessageBox.Show("No se puede cancelar un turno que ya ha sido pagado.", "Atención", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            if (estadoActual == "Disponible")
+            {
+                MessageBox.Show("Este turno ya se encuentra disponible.", "Atención", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            // Ventana de confirmación (Seguridad para el administrativo)
+            DialogResult resultado = MessageBox.Show(
+                $"¿Está seguro de que desea cancelar el turno Nro: {idTurno} ({estudioNombre})?\nEl estado pasará a 'Disponible'.",
+                "Confirmar Cancelación",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question
+            );
+
+            if (resultado == DialogResult.Yes)
+            {
+                if (ActualizarEstadoTurnoADisponible(idTurno))
+                {
+                    MessageBox.Show("El turno se canceló correctamente y vuelve a estar disponible.", "Éxito ✔", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                    // Refrescamos la grilla automáticamente con el método que ya creaste
+                    CargarTurnos(idPacienteGlobal);
+                }
+                else
+                {
+                    MessageBox.Show("No se pudo modificar el estado del turno en la base de datos.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+
+        private bool ActualizarEstadoTurnoADisponible(int idTurno)
+        {
+            // Cambiamos el estado a 'Cancelado' y mantenemos el id_paciente intacto
+            string query = @"UPDATE turnos 
+                     SET estado = 'Cancelado', 
+                         forma_pago = NULL, 
+                         fecha_pago = NULL, 
+                         codigo_ticket = NULL, 
+                         monto_final = NULL 
+                     WHERE id_turno = @id";
+
+            try
+            {
+                using (MySqlConnection conn = new MySqlConnection(conexion))
+                {
+                    conn.Open();
+                    using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@id", idTurno);
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error técnico al cancelar: " + ex.Message);
+                return false;
+            }
         }
     }
 }

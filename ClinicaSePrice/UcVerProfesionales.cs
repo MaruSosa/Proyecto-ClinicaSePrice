@@ -24,6 +24,7 @@ namespace ClinicaSePrice
                 {
                     conn.Open();
 
+                    // CORRECCIÓN: Se cambiaron los corchetes por comillas simples en 'Estudio Asignado'
                     string query = @"
 SELECT 
     p.id_profesional AS ID,
@@ -31,12 +32,12 @@ SELECT
     p.apellido AS Apellido,
     p.dni AS DNI,
     p.matricula AS Matricula,
-    IFNULL(e.nombre_especialidad, 'Sin especialidad') AS Especialidad,
+    IFNULL(e.nombre_estudio, 'Sin estudio asignado') AS 'Estudio Asignado',
     p.telefono AS Telefono,
     p.email AS Email
 FROM profesionales p
-LEFT JOIN especialidades e 
-ON p.id_especialidad = e.id_especialidad";
+LEFT JOIN estudios e 
+ON p.id_estudio = e.id_estudio";
 
                     MySqlDataAdapter da = new MySqlDataAdapter(query, conn);
                     DataTable dt = new DataTable();
@@ -58,7 +59,7 @@ ON p.id_especialidad = e.id_especialidad";
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error: " + ex.Message);
+                MessageBox.Show("Error al mostrar profesionales: " + ex.Message);
             }
         }
 
@@ -161,5 +162,75 @@ ON p.id_especialidad = e.id_especialidad";
                 MessageBox.Show("Error: " + ex.Message);
             }
         }
+   
+    // Método para mostrar u ocultar la sección de búsqueda desde afuera
+public void MostrarSeccionBusqueda(bool mostrar)
+        {
+            // Reemplazá 'panelBuscar' por el nombre REAl de tu panel de abajo
+            // (Fijate en el diseño cómo se llama el panel celeste que contiene "Buscar Profesional")
+            panelBuscarProfesional.Visible = mostrar;
+        }
+
+        private void btnBuscarProfesional_Click(object sender, EventArgs e)
+        {
+            string textoBusqueda = txtBuscarProfesional.Text.Trim();
+
+            if (string.IsNullOrEmpty(textoBusqueda))
+            {
+                MessageBox.Show("Por favor, ingrese Nombre y Apellido para buscar.");
+                return;
+            }
+
+            // Separamos las palabras por espacios (por si ingresó nombre y apellido juntos)
+            string[] partes = textoBusqueda.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+
+            // Validamos que por lo menos haya ingresado dos palabras (Nombre y Apellido)
+            if (partes.Length < 2)
+            {
+                MessageBox.Show("Por favor, ingrese AMBOS datos: Nombre y Apellido (separados por un espacio).");
+                return;
+            }
+
+            // Asignamos la primera palabra al nombre y el resto (o la segunda) al apellido
+            string nombreBuscado = partes[0];
+            string apellidoBuscado = partes[1];
+            // Nota: Si el apellido es compuesto (ej: "Rosa Sosa"), podés unir el resto de las partes si fuera necesario.
+
+            bool encontrado = false;
+
+            // Deseleccionar cualquier fila seleccionada previamente antes de la nueva búsqueda
+            dgvVerProfesionales.ClearSelection();
+
+            foreach (DataGridViewRow row in dgvVerProfesionales.Rows)
+            {
+                if (row.Cells["Nombre"].Value != null && row.Cells["Apellido"].Value != null)
+                {
+                    string nombreCelda = row.Cells["Nombre"].Value.ToString();
+                    string apellidoCelda = row.Cells["Apellido"].Value.ToString();
+
+                    // Compara ignorando mayúsculas, minúsculas y espacios en blanco de más
+                    if (nombreCelda.Trim().Equals(nombreBuscado, StringComparison.OrdinalIgnoreCase) &&
+                        apellidoCelda.Trim().Equals(apellidoBuscado, StringComparison.OrdinalIgnoreCase))
+                    {
+                        row.Selected = true;
+
+                        // Hace scroll automático hasta la fila encontrada para mostrarla en pantalla
+                        dgvVerProfesionales.FirstDisplayedScrollingRowIndex = row.Index;
+
+                        encontrado = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!encontrado)
+            {
+                MessageBox.Show($"No se encontró ningún profesional que coincida con: {nombreBuscado} {apellidoBuscado}", "Sin resultados", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            if (!encontrado)
+            {
+                MessageBox.Show("Profesional no encontrado");
+            }
+        }
     }
-}
+    }
